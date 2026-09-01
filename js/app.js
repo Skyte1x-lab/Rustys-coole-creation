@@ -4,7 +4,7 @@
  */
 
 const PRESETS_KEY = "rcc_profiles";
-const SETTINGS_KEY = "rcc_settings";
+const RGB_TOGGLE_KEY = "rcc_use_rgb_code";
 
 const chatInput = document.getElementById("chat-input");
 const chatPreview = document.getElementById("chat-preview");
@@ -40,98 +40,55 @@ function updatePreview() {
 
 chatInput.addEventListener("input", updatePreview);
 
-// ---------- Einstellungen: welche Regeln sind aktiv ----------
+// ---------- Farbe: Swatch-Klick färbt Auswahl oder setzt Standardfarbe ----------
 
-const rulePills = document.querySelectorAll("#rule-toggles .pill");
+function rgbToHex(rgb) {
+  return "#" + rgb.map((c) => c.toString(16).padStart(2, "0")).join("");
+}
 
-function loadSettings() {
-  try {
-    const raw = localStorage.getItem(SETTINGS_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
+let selectedColor = [79, 214, 255];
+
+const rgbToggle = document.getElementById("rgb-toggle");
+
+(function initRgbToggle() {
+  const active = localStorage.getItem(RGB_TOGGLE_KEY) === "true";
+  rgbToggle.classList.toggle("active", active);
+})();
+
+rgbToggle.addEventListener("click", () => {
+  const active = rgbToggle.classList.toggle("active");
+  localStorage.setItem(RGB_TOGGLE_KEY, String(active));
+});
+
+function applyColor(rgb) {
+  selectedColor = rgb;
+  const spec = rgb.join(",");
+  const hasSelection = chatInput.selectionStart !== chatInput.selectionEnd;
+
+  if (hasSelection) {
+    wrapSelection(`<color=${spec}>`, "</color>", "");
+  } else if (rgbToggle.classList.contains("active")) {
+    insertAtCursor(`^${colorToDigits(rgb)}`);
+  } else {
+    insertAtCursor(`<defc=${spec}>`);
   }
 }
 
-function saveSettings() {
-  const settings = {};
-  rulePills.forEach((pill) => {
-    settings[pill.dataset.rule] = pill.classList.contains("active");
-  });
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-  applySettings(settings);
-}
+const swatchRow = document.getElementById("swatch-row");
+const customSwatch = document.getElementById("custom-swatch");
 
-function applySettings(settings) {
-  const isEnabled = (rule) => (settings ? settings[rule] !== false : true);
-
-  document.getElementById("defc-insert-btn").hidden = !isEnabled("defc");
-  document.getElementById("range-wrap-btn").hidden = !isEnabled("color");
-  document.querySelector('.gen-section[data-section="color-tools"]').hidden =
-    !(isEnabled("defc") || isEnabled("color"));
-  document.querySelector('.gen-section[data-rule="rgb"]').hidden = !isEnabled("rgb");
-}
-
-rulePills.forEach((pill) => {
-  pill.addEventListener("click", () => {
-    pill.classList.toggle("active");
-    saveSettings();
-  });
+PRESET_COLORS.forEach((preset) => {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "swatch";
+  btn.style.backgroundColor = rgbToCss(preset.rgb);
+  btn.title = preset.name;
+  btn.addEventListener("click", () => applyColor(preset.rgb));
+  swatchRow.insertBefore(btn, customSwatch);
 });
 
-(function initSettings() {
-  const saved = loadSettings();
-  rulePills.forEach((pill) => {
-    const active = saved ? saved[pill.dataset.rule] !== false : true;
-    pill.classList.toggle("active", active);
-  });
-  applySettings(saved);
-})();
-
-// ---------- Farbe: <defc=...> und <color=...>text</color> ----------
-
-const colorPicker = document.getElementById("color-picker");
-const colorValue = document.getElementById("color-value");
-
-colorPicker.addEventListener("input", () => {
-  colorValue.value = colorPicker.value;
-});
-
-function currentColorSpec() {
-  return colorValue.value.trim() || colorPicker.value;
-}
-
-document.getElementById("defc-insert-btn").addEventListener("click", () => {
-  insertAtCursor(`<defc=${currentColorSpec()}>`);
-});
-
-document.getElementById("range-wrap-btn").addEventListener("click", () => {
-  wrapSelection(`<color=${currentColorSpec()}>`, "</color>", "Text");
-});
-
-// ---------- ^RGB Kurzcode ----------
-
-const rgbR = document.getElementById("rgb-r");
-const rgbG = document.getElementById("rgb-g");
-const rgbB = document.getElementById("rgb-b");
-const rgbSwatch = document.getElementById("rgb-swatch");
-const rgbCodePreview = document.getElementById("rgb-code-preview");
-
-function currentRgbDigits() {
-  return `${rgbR.value}${rgbG.value}${rgbB.value}`;
-}
-
-function updateRgbUI() {
-  const digits = currentRgbDigits();
-  rgbCodePreview.textContent = `^${digits}`;
-  rgbSwatch.style.background = rgbToCss(rgbDigitsToColor(digits));
-}
-
-[rgbR, rgbG, rgbB].forEach((el) => el.addEventListener("input", updateRgbUI));
-updateRgbUI();
-
-document.getElementById("rgb-insert-btn").addEventListener("click", () => {
-  insertAtCursor(`^${currentRgbDigits()}`);
+customSwatch.addEventListener("input", () => {
+  applyColor(resolveColor(customSwatch.value));
 });
 
 // ---------- Editor Buttons ----------
@@ -189,7 +146,7 @@ document.getElementById("preset-save-btn").addEventListener("click", () => {
   if (!name) return;
   const presets = loadPresets();
   presets[name] = {
-    defcColor: currentColorSpec(),
+    color: selectedColor.join(","),
   };
   savePresets(presets);
   refreshPresetSelect();
@@ -201,16 +158,10 @@ document.getElementById("preset-load-btn").addEventListener("click", () => {
   if (!name) return;
   const presets = loadPresets();
   const preset = presets[name];
-  if (!preset) return;
+  if (!preset || !preset.color) return;
 
-  if (preset.defcColor) {
-    colorValue.value = preset.defcColor;
-    const hex = /^#?[0-9a-fA-F]{6}$/.test(preset.defcColor)
-      ? (preset.defcColor.startsWith("#") ? preset.defcColor : `#${preset.defcColor}`)
-      : null;
-    if (hex) colorPicker.value = hex;
-  }
-  updatePreview();
+  selectedColor = resolveColor(preset.color);
+  customSwatch.value = rgbToHex(selectedColor);
 });
 
 document.getElementById("preset-delete-btn").addEventListener("click", () => {

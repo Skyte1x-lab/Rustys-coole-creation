@@ -23,6 +23,18 @@ const COLOR_NAMES = {
   teal: [0, 128, 128],
 };
 
+const PRESET_COLORS = [
+  { name: "Sith-Rot", rgb: [255, 30, 30] },
+  { name: "Jedi-Cyan", rgb: [79, 214, 255] },
+  { name: "Lichtschwert-Grün", rgb: [40, 255, 100] },
+  { name: "Mace-Windu-Lila", rgb: [160, 32, 240] },
+  { name: "Gold", rgb: [255, 215, 0] },
+  { name: "Rebellen-Orange", rgb: [255, 140, 0] },
+  { name: "Weiß", rgb: [255, 255, 255] },
+  { name: "Sturmtruppen-Grau", rgb: [190, 195, 205] },
+  { name: "Imperium-Blau", rgb: [60, 110, 255] },
+];
+
 function resolveColor(spec) {
   if (!spec) return null;
   spec = String(spec).trim();
@@ -55,6 +67,11 @@ function rgbToCss(rgb) {
 function rgbDigitsToColor(digits) {
   // digits: string of exactly 3 chars, each 0-9, one per channel (R,G,B)
   return digits.split("").map((d) => Math.round((parseInt(d, 10) * 255) / 9));
+}
+
+function colorToDigits(rgb) {
+  // inverse of rgbDigitsToColor: each channel (0-255) rounded to the nearest 0-9 level
+  return rgb.map((c) => Math.round((c * 9) / 255)).join("");
 }
 
 function escapeHtml(str) {

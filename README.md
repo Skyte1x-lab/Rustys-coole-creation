@@ -4,13 +4,14 @@ Ein Chat-Parser-Generator im Star-Wars-Stil. Statt die Formatierungs-Syntax dein
 
 ## Funktionen
 
-- **Individuell konfigurierbar**: In den Parser-Einstellungen legst du fest, welche Regeln du überhaupt sehen/nutzen willst.
+- **Klick-to-Color**: Text im Nachrichtenfeld markieren und auf eine Farbe klicken — der markierte Text wird sofort mit `<color=r,g,b>...</color>` umschlossen. Ohne Markierung setzt ein Klick die Farbe ab der Cursorposition (`<defc=r,g,b>`, oder als Kurzcode `^RGB` wenn der Kurzcode-Schalter aktiv ist).
+- **9 Star-Wars-Farb-Swatches** plus ein Custom-Swatch (natives Farbrad) für jede beliebige Farbe.
 - **Unterstützte Syntax**:
-  - `<defc=color name/rgb/hex>` — setzt die Standardfarbe für den folgenden Text
+  - `<defc=r,g,b>` — setzt die Standardfarbe für den folgenden Text
   - `<color=r,g,b>text</color>` — färbt nur einen Textabschnitt
-  - `^RGB` (drei Ziffern 0–9, z. B. `^009`) — Farb-Kurzcode
+  - `^RGB` (drei Ziffern 0–9, z. B. `^009`) — Farb-Kurzcode, per Schalter aktivierbar
 - **Live-Vorschau**: zeigt den generierten Code farblich gerendert an, genau wie er im Spiel-Chat erscheinen würde.
-- **Eigene Profile**: speichere deine Standardfarbe als benanntes Profil (lokal im Browser via `localStorage`) und lade es jederzeit wieder.
+- **Eigene Profile**: speichere deine Lieblingsfarbe als benanntes Profil (lokal im Browser via `localStorage`) und lade es jederzeit wieder.
 - **Ein Klick zum Kopieren**: der fertige Code landet per Knopfdruck in der Zwischenablage.
 
 ## Nutzung
@@ -34,10 +35,10 @@ js/app.js            UI-Logik: Einstellungen, Generator, Editor, Profile
 
 ## Farb-Formate
 
-Farben können auf drei Arten angegeben werden:
+Die Live-Vorschau erkennt Farben in drei Schreibweisen (auch wenn du Code von Hand einfügst oder einfügst):
 
 - Name (z. B. `red`, `gold`, `cyan` — siehe `COLOR_NAMES` in `js/parsers.js`)
-- RGB-Tripel (z. B. `255,140,0`)
+- RGB-Tripel (z. B. `255,140,0`) — dieses Format erzeugen die Swatches
 - Hex (z. B. `#ff8c00` oder `ff8c00`)
 
 Der `^RGB`-Kurzcode nutzt drei Ziffern (0–9) für Rot, Grün und Blau, z. B. `^009` für kräftiges Blau.
