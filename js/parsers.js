@@ -24,14 +24,23 @@ const COLOR_NAMES = {
 
 const PRESET_COLORS = [
   { name: "Sith-Rot", rgb: [255, 30, 30] },
-  { name: "Jedi-Cyan", rgb: [79, 214, 255] },
-  { name: "Lichtschwert-Grün", rgb: [40, 255, 100] },
-  { name: "Mace-Windu-Lila", rgb: [160, 32, 240] },
-  { name: "Gold", rgb: [255, 215, 0] },
+  { name: "Dunkelrot", rgb: [170, 20, 20] },
+  { name: "Bernstein", rgb: [255, 176, 46] },
   { name: "Rebellen-Orange", rgb: [255, 140, 0] },
+  { name: "Gold", rgb: [255, 215, 0] },
+  { name: "Gelb", rgb: [255, 235, 80] },
+  { name: "Lichtschwert-Grün", rgb: [40, 255, 100] },
+  { name: "Limette", rgb: [140, 230, 60] },
+  { name: "Türkis", rgb: [40, 220, 200] },
+  { name: "Jedi-Cyan", rgb: [79, 214, 255] },
+  { name: "Imperium-Blau", rgb: [60, 110, 255] },
+  { name: "Marineblau", rgb: [30, 60, 160] },
+  { name: "Mace-Windu-Lila", rgb: [160, 32, 240] },
+  { name: "Magenta", rgb: [230, 60, 200] },
+  { name: "Rosa", rgb: [255, 130, 180] },
   { name: "Weiß", rgb: [255, 255, 255] },
   { name: "Sturmtruppen-Grau", rgb: [190, 195, 205] },
-  { name: "Imperium-Blau", rgb: [60, 110, 255] },
+  { name: "Schwarz", rgb: [35, 38, 45] },
 ];
 
 function resolveColor(spec) {
