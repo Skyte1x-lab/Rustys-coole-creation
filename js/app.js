@@ -9,7 +9,13 @@ const chatEditor = document.getElementById("chat-editor");
 const chatCode = document.getElementById("chat-code");
 
 // Enter erzeugt <br> statt verschachtelter <div>-Zeilen, hält die Editor-DOM flach.
-document.execCommand("defaultParagraphSeparator", false, "br");
+// In try/catch, da execCommand in manchen Browsern/Zuständen wirft und sonst
+// die komplette restliche Initialisierung (Swatches, Buttons, Profile) blockieren würde.
+try {
+  document.execCommand("defaultParagraphSeparator", false, "br");
+} catch {
+  // ignorieren — Zeilenumbrüche funktionieren dann per Standardverhalten des Browsers
+}
 
 // ---------- Editor-Inhalt in Spiel-Code umwandeln ----------
 
@@ -51,8 +57,16 @@ function showSelectHint() {
   hint._timer = setTimeout(() => (hint.hidden = true), 1800);
 }
 
+function markActiveSwatch(rgb) {
+  const spec = rgb.join(",");
+  document.querySelectorAll("#swatch-row .swatch:not(.is-custom)").forEach((btn) => {
+    btn.classList.toggle("is-active", btn.dataset.rgb === spec);
+  });
+}
+
 function applyColor(rgb) {
   selectedColor = rgb;
+  markActiveSwatch(rgb);
 
   const sel = window.getSelection();
   if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
@@ -74,6 +88,21 @@ function applyColor(rgb) {
     span.appendChild(frag);
     range.insertNode(span);
   }
+
+  // Bereits vorhandene Farb-Spans, die jetzt innerhalb des neuen Spans
+  // gelandet sind (z.B. beim erneuten Einfärben), auflösen statt zu
+  // verschachteln — es soll immer nur eine Farbe pro Abschnitt gelten.
+  span.querySelectorAll("span").forEach((inner) => {
+    const parent = inner.parentNode;
+    while (inner.firstChild) parent.insertBefore(inner.firstChild, inner);
+    parent.removeChild(inner);
+  });
+
+  // Alte Farb-Spans, die durch das Umfärben leer zurückgeblieben sind, entfernen.
+  chatEditor.querySelectorAll("span").forEach((s) => {
+    if (!s.textContent) s.remove();
+  });
+
   sel.removeAllRanges();
   updateCode();
 }
@@ -85,6 +114,7 @@ PRESET_COLORS.forEach((preset) => {
   const btn = document.createElement("button");
   btn.type = "button";
   btn.className = "swatch";
+  btn.dataset.rgb = preset.rgb.join(",");
   btn.style.backgroundColor = rgbToCss(preset.rgb);
   btn.title = preset.name;
   btn.addEventListener("click", () => applyColor(preset.rgb));
@@ -171,6 +201,7 @@ document.getElementById("preset-load-btn").addEventListener("click", () => {
 
   selectedColor = resolveColor(preset.color);
   customSwatch.value = rgbToHex(selectedColor);
+  markActiveSwatch(selectedColor);
 });
 
 document.getElementById("preset-delete-btn").addEventListener("click", () => {
@@ -180,6 +211,19 @@ document.getElementById("preset-delete-btn").addEventListener("click", () => {
   delete presets[name];
   savePresets(presets);
   refreshPresetSelect();
+});
+
+// ---------- Tabs ----------
+
+document.querySelectorAll(".tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("is-active"));
+    tab.classList.add("is-active");
+    const target = tab.dataset.tab;
+    document.querySelectorAll("[data-tab-panel]").forEach((pane) => {
+      pane.hidden = pane.dataset.tabPanel !== target;
+    });
+  });
 });
 
 // ---------- Starfield-Hintergrund ----------

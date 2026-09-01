@@ -8,7 +8,8 @@ Ein Chat-Parser-Generator im Star-Wars-Stil. Du schreibst deine Nachricht ganz n
 
 - **WYSIWYG-Editor**: Text tippen, markieren, Farbe klicken — der markierte Text wird direkt im Editor bunt dargestellt, genau wie er später im Spiel-Chat aussehen soll.
 - **Automatischer Code**: Unter dem Editor erscheint live der fertige Chat-Code (`<color=r,g,b>text</color>`), bereit zum Kopieren — du musst nie selbst Syntax schreiben.
-- **9 Star-Wars-Farb-Swatches** plus ein Custom-Swatch (natives Farbrad) für jede beliebige Farbe.
+- **18 Farb-Swatches** plus ein Custom-Swatch (natives Farbrad) für jede beliebige Farbe. Erneutes Einfärben eines bereits farbigen Abschnitts ersetzt sauber die alte Farbe statt sie zu verschachteln.
+- **Modernes Tab-Layout**: „Nachricht" (Farbe + Editor) und „Profile" als eigene Reiter in einer flachen, aufgeräumten Kartenoptik.
 - **Eigene Profile**: speichere deine Lieblingsfarbe als benanntes Profil (lokal im Browser via `localStorage`) und lade sie jederzeit wieder.
 - **Ein Klick zum Kopieren**: der fertige Code landet per Knopfdruck in der Zwischenablage.
 

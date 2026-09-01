@@ -13,58 +13,78 @@
 
 <canvas id="starfield"></canvas>
 
-<header class="site-header">
-  <h1 class="site-title">HoloComm <span>von</span> Rusty</h1>
-  <p class="site-subtitle">Chat-Parser-Generator &mdash; möge die Formatierung mit dir sein.</p>
-</header>
+<div class="app-shell">
 
-<main class="container">
-
-  <section class="panel" id="color-panel">
-    <div class="panel-header"><span class="panel-lights"></span><h2>🎨 Farbe</h2></div>
-    <div class="panel-body">
-      <p class="hint">Text unten markieren, dann eine Farbe anklicken.</p>
-      <div class="swatch-row" id="swatch-row">
-        <input type="color" id="custom-swatch" class="swatch is-custom" value="#4fd6ff" title="Eigene Farbe">
-      </div>
-      <span id="select-hint" class="confirm-msg" hidden>Markiere zuerst Text in der Nachricht.</span>
+  <nav class="topbar">
+    <span class="brand">HoloComm <em>von Rusty</em></span>
+    <div class="tabs" id="tabs">
+      <button type="button" class="tab is-active" data-tab="editor">Nachricht</button>
+      <button type="button" class="tab" data-tab="profiles">Profile</button>
     </div>
-  </section>
+  </nav>
 
-  <section class="panel" id="editor-panel">
-    <div class="panel-header"><span class="panel-lights"></span><h2>✎ Nachricht</h2></div>
-    <div class="panel-body">
-      <div id="chat-editor" class="chat-editor" contenteditable="true" data-placeholder="Schreibe hier deine Nachricht..."></div>
-      <div class="row">
-        <button class="btn btn-primary" id="copy-btn">Code kopieren</button>
-        <button class="btn btn-secondary" id="clear-btn">Leeren</button>
-        <span id="copy-confirm" class="confirm-msg" hidden>Kopiert!</span>
+  <main class="workspace">
+
+    <section class="pane" data-tab-panel="editor">
+
+      <div class="card" id="color-card">
+        <div class="card-head">
+          <h2>Farbe</h2>
+          <span class="hint">Text markieren, dann Farbe anklicken</span>
+        </div>
+        <div class="card-body">
+          <div class="swatch-grid" id="swatch-row">
+            <input type="color" id="custom-swatch" class="swatch is-custom" value="#4fd6ff" title="Eigene Farbe">
+          </div>
+          <span id="select-hint" class="inline-hint" hidden>Markiere zuerst Text in der Nachricht.</span>
+        </div>
       </div>
-      <span class="col-label">Chat-Code zum Einfügen ins Spiel</span>
-      <div class="chat-code" id="chat-code"></div>
-    </div>
-  </section>
 
-  <section class="panel" id="presets-panel">
-    <div class="panel-header"><span class="panel-lights"></span><h2>💾 Meine Profile</h2></div>
-    <div class="panel-body">
-      <div class="row">
-        <input type="text" id="preset-name" placeholder="Profilname, z.B. Jedi-Standard">
-        <button class="btn" id="preset-save-btn">Speichern</button>
+      <div class="card" id="editor-card">
+        <div class="card-head">
+          <h2>Nachricht</h2>
+        </div>
+        <div class="card-body">
+          <div id="chat-editor" class="chat-editor" contenteditable="true" data-placeholder="Schreibe hier deine Nachricht..."></div>
+          <div class="row">
+            <button class="btn btn-primary" id="copy-btn">Code kopieren</button>
+            <button class="btn btn-ghost" id="clear-btn">Leeren</button>
+            <span id="copy-confirm" class="inline-hint is-success" hidden>Kopiert!</span>
+          </div>
+          <span class="field-label">Chat-Code zum Einfügen ins Spiel</span>
+          <div class="chat-code" id="chat-code"></div>
+        </div>
       </div>
-      <div class="row">
-        <select id="preset-select"><option value="">— gespeicherte Profile —</option></select>
-        <button class="btn btn-secondary" id="preset-load-btn">Laden</button>
-        <button class="btn btn-danger" id="preset-delete-btn">Löschen</button>
+
+    </section>
+
+    <section class="pane" data-tab-panel="profiles" hidden>
+      <div class="card">
+        <div class="card-head">
+          <h2>Meine Profile</h2>
+          <span class="hint">Lieblingsfarbe merken und wieder laden</span>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <input type="text" id="preset-name" placeholder="Profilname, z.B. Jedi-Standard">
+            <button class="btn btn-primary" id="preset-save-btn">Speichern</button>
+          </div>
+          <div class="row">
+            <select id="preset-select"><option value="">— gespeicherte Profile —</option></select>
+            <button class="btn btn-ghost" id="preset-load-btn">Laden</button>
+            <button class="btn btn-danger" id="preset-delete-btn">Löschen</button>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-</main>
+  </main>
 
-<footer class="site-footer">
-  <p>HoloComm von Rusty &mdash; ein selbstgebauter Chat-Parser-Generator im Star-Wars-Stil. Möge der Chat mit dir sein.</p>
-</footer>
+  <footer class="site-footer">
+    <p>HoloComm von Rusty &mdash; ein selbstgebauter Chat-Parser-Generator im Star-Wars-Stil. Möge der Chat mit dir sein.</p>
+  </footer>
+
+</div>
 
 <script src="js/parsers.js"></script>
 <script src="js/app.js"></script>
