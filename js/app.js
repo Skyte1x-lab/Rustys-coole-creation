@@ -42,6 +42,8 @@ chatInput.addEventListener("input", updatePreview);
 
 // ---------- Einstellungen: welche Regeln sind aktiv ----------
 
+const rulePills = document.querySelectorAll("#rule-toggles .pill");
+
 function loadSettings() {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
@@ -53,66 +55,58 @@ function loadSettings() {
 
 function saveSettings() {
   const settings = {};
-  document.querySelectorAll("#settings-panel input[type=checkbox]").forEach((cb) => {
-    settings[cb.dataset.rule] = cb.checked;
+  rulePills.forEach((pill) => {
+    settings[pill.dataset.rule] = pill.classList.contains("active");
   });
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   applySettings(settings);
 }
 
 function applySettings(settings) {
-  document.querySelectorAll(".gen-section").forEach((section) => {
-    const rule = section.dataset.rule;
-    const enabled = settings ? settings[rule] !== false : true;
-    section.hidden = !enabled;
-  });
+  const isEnabled = (rule) => (settings ? settings[rule] !== false : true);
+
+  document.getElementById("defc-insert-btn").hidden = !isEnabled("defc");
+  document.getElementById("range-wrap-btn").hidden = !isEnabled("color");
+  document.querySelector('.gen-section[data-section="color-tools"]').hidden =
+    !(isEnabled("defc") || isEnabled("color"));
+  document.querySelector('.gen-section[data-rule="rgb"]').hidden = !isEnabled("rgb");
 }
 
-document.querySelectorAll("#settings-panel input[type=checkbox]").forEach((cb) => {
-  cb.addEventListener("change", saveSettings);
+rulePills.forEach((pill) => {
+  pill.addEventListener("click", () => {
+    pill.classList.toggle("active");
+    saveSettings();
+  });
 });
 
 (function initSettings() {
   const saved = loadSettings();
-  if (saved) {
-    document.querySelectorAll("#settings-panel input[type=checkbox]").forEach((cb) => {
-      if (saved[cb.dataset.rule] !== undefined) cb.checked = saved[cb.dataset.rule];
-    });
-  }
+  rulePills.forEach((pill) => {
+    const active = saved ? saved[pill.dataset.rule] !== false : true;
+    pill.classList.toggle("active", active);
+  });
   applySettings(saved);
 })();
 
-// ---------- <defc=...> ----------
+// ---------- Farbe: <defc=...> und <color=...>text</color> ----------
 
-const defcPicker = document.getElementById("defc-color-picker");
-const defcValue = document.getElementById("defc-color-value");
+const colorPicker = document.getElementById("color-picker");
+const colorValue = document.getElementById("color-value");
 
-defcPicker.addEventListener("input", () => {
-  defcValue.value = defcPicker.value;
+colorPicker.addEventListener("input", () => {
+  colorValue.value = colorPicker.value;
 });
+
+function currentColorSpec() {
+  return colorValue.value.trim() || colorPicker.value;
+}
 
 document.getElementById("defc-insert-btn").addEventListener("click", () => {
-  const spec = defcValue.value.trim() || defcPicker.value;
-  insertAtCursor(`<defc=${spec}>`);
-});
-
-// ---------- <color=...>text</color> ----------
-
-const rangePicker = document.getElementById("range-color-picker");
-const rangeValue = document.getElementById("range-color-value");
-
-rangePicker.addEventListener("input", () => {
-  rangeValue.value = rangePicker.value;
+  insertAtCursor(`<defc=${currentColorSpec()}>`);
 });
 
 document.getElementById("range-wrap-btn").addEventListener("click", () => {
-  const spec = rangeValue.value.trim() || rangePicker.value;
-  wrapSelection(`<color=${spec}>`, "</color>", "Text");
-});
-
-document.getElementById("range-insert-btn").addEventListener("click", () => {
-  const spec = rangeValue.value.trim() || rangePicker.value;
-  insertAtCursor(`<color=${spec}>Text</color>`);
+  wrapSelection(`<color=${currentColorSpec()}>`, "</color>", "Text");
 });
 
 // ---------- ^RGB Kurzcode ----------
@@ -120,9 +114,6 @@ document.getElementById("range-insert-btn").addEventListener("click", () => {
 const rgbR = document.getElementById("rgb-r");
 const rgbG = document.getElementById("rgb-g");
 const rgbB = document.getElementById("rgb-b");
-const rgbRVal = document.getElementById("rgb-r-val");
-const rgbGVal = document.getElementById("rgb-g-val");
-const rgbBVal = document.getElementById("rgb-b-val");
 const rgbSwatch = document.getElementById("rgb-swatch");
 const rgbCodePreview = document.getElementById("rgb-code-preview");
 
@@ -131,9 +122,6 @@ function currentRgbDigits() {
 }
 
 function updateRgbUI() {
-  rgbRVal.textContent = rgbR.value;
-  rgbGVal.textContent = rgbG.value;
-  rgbBVal.textContent = rgbB.value;
   const digits = currentRgbDigits();
   rgbCodePreview.textContent = `^${digits}`;
   rgbSwatch.style.background = rgbToCss(rgbDigitsToColor(digits));
@@ -201,7 +189,7 @@ document.getElementById("preset-save-btn").addEventListener("click", () => {
   if (!name) return;
   const presets = loadPresets();
   presets[name] = {
-    defcColor: defcValue.value.trim() || defcPicker.value,
+    defcColor: currentColorSpec(),
   };
   savePresets(presets);
   refreshPresetSelect();
@@ -216,11 +204,11 @@ document.getElementById("preset-load-btn").addEventListener("click", () => {
   if (!preset) return;
 
   if (preset.defcColor) {
-    defcValue.value = preset.defcColor;
+    colorValue.value = preset.defcColor;
     const hex = /^#?[0-9a-fA-F]{6}$/.test(preset.defcColor)
       ? (preset.defcColor.startsWith("#") ? preset.defcColor : `#${preset.defcColor}`)
       : null;
-    if (hex) defcPicker.value = hex;
+    if (hex) colorPicker.value = hex;
   }
   updatePreview();
 });
