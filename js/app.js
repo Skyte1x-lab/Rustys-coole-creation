@@ -1,46 +1,42 @@
 /*
  * Rustys Coole Creation — App-Logik
- * Verdrahtet die UI: Einstellungen, Generator, Editor, Vorschau, Profile.
+ * Verdrahtet die UI: Farb-Swatches, WYSIWYG-Editor, Code-Ausgabe, Profile.
  */
 
 const PRESETS_KEY = "rcc_profiles";
-const RGB_TOGGLE_KEY = "rcc_use_rgb_code";
 
-const chatInput = document.getElementById("chat-input");
-const chatPreview = document.getElementById("chat-preview");
+const chatEditor = document.getElementById("chat-editor");
+const chatCode = document.getElementById("chat-code");
 
-// ---------- Hilfsfunktionen: Text einfügen ----------
+// Enter erzeugt <br> statt verschachtelter <div>-Zeilen, hält die Editor-DOM flach.
+document.execCommand("defaultParagraphSeparator", false, "br");
 
-function insertAtCursor(text) {
-  const el = chatInput;
-  const start = el.selectionStart ?? el.value.length;
-  const end = el.selectionEnd ?? el.value.length;
-  el.value = el.value.slice(0, start) + text + el.value.slice(end);
-  const newPos = start + text.length;
-  el.focus();
-  el.setSelectionRange(newPos, newPos);
-  updatePreview();
+// ---------- Editor-Inhalt in Spiel-Code umwandeln ----------
+
+function serializeEditor(node) {
+  let out = "";
+  node.childNodes.forEach((child) => {
+    if (child.nodeType === Node.TEXT_NODE) {
+      out += child.textContent;
+    } else if (child.nodeName === "BR") {
+      out += "\n";
+    } else if (child.nodeName === "SPAN" && child.style.color) {
+      const rgb = child.style.color.match(/\d+/g).map(Number);
+      out += `<color=${rgb.join(",")}>${serializeEditor(child)}</color>`;
+    } else {
+      out += serializeEditor(child);
+    }
+  });
+  return out;
 }
 
-function wrapSelection(before, after, placeholder) {
-  const el = chatInput;
-  const start = el.selectionStart ?? 0;
-  const end = el.selectionEnd ?? 0;
-  const selected = el.value.slice(start, end) || placeholder;
-  el.value = el.value.slice(0, start) + before + selected + after + el.value.slice(end);
-  const newPos = start + before.length + selected.length + after.length;
-  el.focus();
-  el.setSelectionRange(newPos, newPos);
-  updatePreview();
+function updateCode() {
+  chatCode.textContent = serializeEditor(chatEditor);
 }
 
-function updatePreview() {
-  chatPreview.innerHTML = renderPreviewHTML(chatInput.value);
-}
+chatEditor.addEventListener("input", updateCode);
 
-chatInput.addEventListener("input", updatePreview);
-
-// ---------- Farbe: Swatch-Klick färbt Auswahl oder setzt Standardfarbe ----------
+// ---------- Farbe: markierten Text einfärben ----------
 
 function rgbToHex(rgb) {
   return "#" + rgb.map((c) => c.toString(16).padStart(2, "0")).join("");
@@ -48,30 +44,38 @@ function rgbToHex(rgb) {
 
 let selectedColor = [79, 214, 255];
 
-const rgbToggle = document.getElementById("rgb-toggle");
-
-(function initRgbToggle() {
-  const active = localStorage.getItem(RGB_TOGGLE_KEY) === "true";
-  rgbToggle.classList.toggle("active", active);
-})();
-
-rgbToggle.addEventListener("click", () => {
-  const active = rgbToggle.classList.toggle("active");
-  localStorage.setItem(RGB_TOGGLE_KEY, String(active));
-});
+function showSelectHint() {
+  const hint = document.getElementById("select-hint");
+  hint.hidden = false;
+  clearTimeout(hint._timer);
+  hint._timer = setTimeout(() => (hint.hidden = true), 1800);
+}
 
 function applyColor(rgb) {
   selectedColor = rgb;
-  const spec = rgb.join(",");
-  const hasSelection = chatInput.selectionStart !== chatInput.selectionEnd;
 
-  if (hasSelection) {
-    wrapSelection(`<color=${spec}>`, "</color>", "");
-  } else if (rgbToggle.classList.contains("active")) {
-    insertAtCursor(`^${colorToDigits(rgb)}`);
-  } else {
-    insertAtCursor(`<defc=${spec}>`);
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
+    showSelectHint();
+    return;
   }
+  const range = sel.getRangeAt(0);
+  if (!chatEditor.contains(range.commonAncestorContainer)) {
+    showSelectHint();
+    return;
+  }
+
+  const span = document.createElement("span");
+  span.style.color = rgbToCss(rgb);
+  try {
+    range.surroundContents(span);
+  } catch {
+    const frag = range.extractContents();
+    span.appendChild(frag);
+    range.insertNode(span);
+  }
+  sel.removeAllRanges();
+  updateCode();
 }
 
 const swatchRow = document.getElementById("swatch-row");
@@ -94,16 +98,21 @@ customSwatch.addEventListener("input", () => {
 // ---------- Editor Buttons ----------
 
 document.getElementById("clear-btn").addEventListener("click", () => {
-  chatInput.value = "";
-  updatePreview();
+  chatEditor.innerHTML = "";
+  updateCode();
 });
 
 document.getElementById("copy-btn").addEventListener("click", async () => {
   try {
-    await navigator.clipboard.writeText(chatInput.value);
+    await navigator.clipboard.writeText(chatCode.textContent);
   } catch {
-    chatInput.select();
+    const range = document.createRange();
+    range.selectNodeContents(chatCode);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
     document.execCommand("copy");
+    sel.removeAllRanges();
   }
   const confirmEl = document.getElementById("copy-confirm");
   confirmEl.hidden = false;
@@ -214,5 +223,5 @@ document.getElementById("preset-delete-btn").addEventListener("click", () => {
   requestAnimationFrame(draw);
 })();
 
-// ---------- Initiale Vorschau ----------
-updatePreview();
+// ---------- Initialer Code ----------
+updateCode();

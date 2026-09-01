@@ -1,7 +1,6 @@
 /*
- * Rustys Coole Creation — Parser-Regeln
- * Definiert die unterstützte Chat-Parser-Syntax und die Logik,
- * um daraus eine gerenderte Live-Vorschau zu erzeugen.
+ * Rustys Coole Creation — Farb-Daten
+ * Farbnamen, Star-Wars-Farbpalette und Farbauflösung für den Editor.
  */
 
 const COLOR_NAMES = {
@@ -62,66 +61,4 @@ function resolveColor(spec) {
 
 function rgbToCss(rgb) {
   return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
-}
-
-function rgbDigitsToColor(digits) {
-  // digits: string of exactly 3 chars, each 0-9, one per channel (R,G,B)
-  return digits.split("").map((d) => Math.round((parseInt(d, 10) * 255) / 9));
-}
-
-function colorToDigits(rgb) {
-  // inverse of rgbDigitsToColor: each channel (0-255) rounded to the nearest 0-9 level
-  return rgb.map((c) => Math.round((c * 9) / 255)).join("");
-}
-
-function escapeHtml(str) {
-  return str.replace(/[&<>"']/g, (ch) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;",
-  }[ch]));
-}
-
-const TOKEN_RE = /<defc=([^>]+)>|<color=([^>]+)>([\s\S]*?)<\/color>|\^(\d{3})/g;
-
-/**
- * Rendert einen rohen Chat-Parser-Code als HTML für die Live-Vorschau.
- * @param {string} text - der rohe Code (z.B. aus dem Textfeld)
- * @returns {string} HTML-String
- */
-function renderPreviewHTML(text) {
-  let result = "";
-  let currentColor = null;
-  let lastIndex = 0;
-  let match;
-
-  const re = new RegExp(TOKEN_RE);
-
-  function flushPlain(chunk) {
-    if (!chunk) return;
-    const escaped = escapeHtml(chunk);
-    result += currentColor
-      ? `<span style="color:${rgbToCss(currentColor)}">${escaped}</span>`
-      : escaped;
-  }
-
-  while ((match = re.exec(text)) !== null) {
-    flushPlain(text.slice(lastIndex, match.index));
-    lastIndex = re.lastIndex;
-
-    if (match[1] !== undefined) {
-      currentColor = resolveColor(match[1]);
-    } else if (match[2] !== undefined) {
-      const rgb = resolveColor(match[2]);
-      const inner = renderPreviewHTML(match[3]);
-      result += `<span style="color:${rgbToCss(rgb)}">${inner}</span>`;
-    } else if (match[4] !== undefined) {
-      currentColor = rgbDigitsToColor(match[4]);
-    }
-  }
-  flushPlain(text.slice(lastIndex));
-
-  return result || "&nbsp;";
 }

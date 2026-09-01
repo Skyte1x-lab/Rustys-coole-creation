@@ -23,31 +23,25 @@
   <section class="panel" id="color-panel">
     <div class="panel-header"><span class="panel-lights"></span><h2>🎨 Farbe</h2></div>
     <div class="panel-body">
-      <p class="hint">Text markieren &amp; Farbe klicken zum Einfärben, oder ohne Auswahl klicken um die Farbe ab hier zu setzen.</p>
+      <p class="hint">Text unten markieren, dann eine Farbe anklicken.</p>
       <div class="swatch-row" id="swatch-row">
         <input type="color" id="custom-swatch" class="swatch is-custom" value="#4fd6ff" title="Eigene Farbe">
       </div>
-      <button type="button" class="pill" id="rgb-toggle">Kurzcode <code>^RGB</code> statt <code>&lt;defc&gt;</code></button>
+      <span id="select-hint" class="confirm-msg" hidden>Markiere zuerst Text in der Nachricht.</span>
     </div>
   </section>
 
   <section class="panel" id="editor-panel">
-    <div class="panel-header"><span class="panel-lights"></span><h2>✎ Nachricht &amp; Vorschau</h2></div>
-    <div class="panel-body editor-grid">
-      <div class="editor-col">
-        <textarea id="chat-input" rows="6" placeholder="Schreibe hier deine Nachricht und füge oben Codes ein..."></textarea>
-        <div class="row">
-          <button class="btn btn-primary" id="copy-btn">Kopieren</button>
-          <button class="btn btn-secondary" id="clear-btn">Leeren</button>
-          <span id="copy-confirm" class="confirm-msg" hidden>Kopiert!</span>
-        </div>
+    <div class="panel-header"><span class="panel-lights"></span><h2>✎ Nachricht</h2></div>
+    <div class="panel-body">
+      <div id="chat-editor" class="chat-editor" contenteditable="true" data-placeholder="Schreibe hier deine Nachricht..."></div>
+      <div class="row">
+        <button class="btn btn-primary" id="copy-btn">Code kopieren</button>
+        <button class="btn btn-secondary" id="clear-btn">Leeren</button>
+        <span id="copy-confirm" class="confirm-msg" hidden>Kopiert!</span>
       </div>
-      <div class="preview-col">
-        <span class="col-label">Live-Vorschau</span>
-        <div class="chat-window">
-          <div class="chat-line" id="chat-preview">&nbsp;</div>
-        </div>
-      </div>
+      <span class="col-label">Chat-Code zum Einfügen ins Spiel</span>
+      <div class="chat-code" id="chat-code"></div>
     </div>
   </section>
 

@@ -150,41 +150,6 @@ html, body {
   margin: 0 0 0.8rem;
 }
 
-/* Toggle pill */
-
-.pill {
-  font-family: var(--font-title);
-  font-size: 0.72rem;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-dim);
-  border: 1px solid var(--panel-border-dim);
-  border-radius: 999px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
-}
-
-.pill code {
-  font-family: monospace;
-  font-size: 0.68rem;
-  opacity: 0.75;
-  margin-left: 0.3rem;
-  text-transform: none;
-}
-
-.pill:hover {
-  border-color: var(--accent-cyan);
-}
-
-.pill.active {
-  color: var(--accent-cyan);
-  background: rgba(47, 216, 255, 0.14);
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 10px rgba(47, 216, 255, 0.3);
-}
-
 /* Farb-Swatches */
 
 .swatch-row {
@@ -240,8 +205,7 @@ input[type="text"] {
   font-family: var(--font-body);
 }
 
-input[type="text"]:focus,
-textarea:focus {
+input[type="text"]:focus {
   outline: none;
   border-color: var(--accent-cyan);
   box-shadow: 0 0 0 2px rgba(47, 216, 255, 0.2);
@@ -295,20 +259,7 @@ textarea:focus {
   background: rgba(255, 77, 77, 0.25);
 }
 
-/* Editor + preview */
-
-.editor-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.2rem;
-  align-items: start;
-}
-
-@media (max-width: 700px) {
-  .editor-grid {
-    grid-template-columns: 1fr;
-  }
-}
+/* Editor: WYSIWYG-Nachricht + Code-Ausgabe */
 
 .col-label {
   display: block;
@@ -317,20 +268,33 @@ textarea:focus {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--accent-cyan);
-  margin-bottom: 0.5rem;
+  margin: 0.9rem 0 0.5rem;
 }
 
-textarea {
+.chat-editor {
   width: 100%;
-  resize: vertical;
+  min-height: 6rem;
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid var(--panel-border-dim);
   border-radius: 6px;
   padding: 0.7rem;
   color: var(--text-main);
   font-family: monospace;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  word-break: break-word;
   margin-bottom: 0.7rem;
+}
+
+.chat-editor:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 2px rgba(47, 216, 255, 0.2);
+}
+
+.chat-editor:empty:before {
+  content: attr(data-placeholder);
+  color: var(--text-dim);
 }
 
 .confirm-msg {
@@ -338,20 +302,18 @@ textarea {
   font-size: 0.8rem;
 }
 
-.chat-window {
+.chat-code {
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid var(--panel-border-dim);
   border-radius: 8px;
   padding: 0.9rem 1rem;
-  min-height: 8.5rem;
-}
-
-.chat-line {
+  min-height: 2.5rem;
   font-family: monospace;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   line-height: 1.5;
   word-break: break-word;
-  color: var(--text-main);
+  white-space: pre-wrap;
+  color: var(--text-dim);
 }
 
 select {
