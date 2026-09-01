@@ -20,47 +20,14 @@
 
 <main class="container">
 
-  <section class="panel" id="settings-panel">
-    <div class="panel-header"><span class="panel-lights"></span><h2>⚙ Regeln</h2></div>
+  <section class="panel" id="color-panel">
+    <div class="panel-header"><span class="panel-lights"></span><h2>🎨 Farbe</h2></div>
     <div class="panel-body">
-      <p class="hint">Welche Codes willst du benutzen?</p>
-      <div class="pill-group" id="rule-toggles">
-        <button type="button" class="pill" data-rule="defc">Standardfarbe <code>&lt;defc&gt;</code></button>
-        <button type="button" class="pill" data-rule="color">Textfarbe <code>&lt;color&gt;</code></button>
-        <button type="button" class="pill" data-rule="rgb">RGB-Code <code>^RGB</code></button>
+      <p class="hint">Text markieren &amp; Farbe klicken zum Einfärben, oder ohne Auswahl klicken um die Farbe ab hier zu setzen.</p>
+      <div class="swatch-row" id="swatch-row">
+        <input type="color" id="custom-swatch" class="swatch is-custom" value="#4fd6ff" title="Eigene Farbe">
       </div>
-    </div>
-  </section>
-
-  <section class="panel" id="generator-panel">
-    <div class="panel-header"><span class="panel-lights"></span><h2>🎨 Generator</h2></div>
-    <div class="panel-body">
-
-      <div class="gen-section" data-section="color-tools">
-        <h3>Farbe wählen</h3>
-        <div class="row">
-          <input type="color" id="color-picker" value="#4fd6ff">
-          <input type="text" id="color-value" placeholder="z.B. red, 79,214,255 oder #4fd6ff">
-        </div>
-        <div class="row">
-          <button class="btn" id="defc-insert-btn" data-rule="defc">Als Standardfarbe setzen</button>
-          <button class="btn btn-secondary" id="range-wrap-btn" data-rule="color">Nur Auswahl färben</button>
-        </div>
-      </div>
-
-      <div class="gen-section" data-rule="rgb">
-        <h3>RGB-Kurzcode &mdash; <code>^RGB</code></h3>
-        <div class="rgb-sliders">
-          <label>R <input type="range" min="0" max="9" value="0" id="rgb-r"></label>
-          <label>G <input type="range" min="0" max="9" value="0" id="rgb-g"></label>
-          <label>B <input type="range" min="0" max="9" value="9" id="rgb-b"></label>
-          <span class="rgb-swatch" id="rgb-swatch"></span>
-        </div>
-        <div class="row">
-          <button class="btn" id="rgb-insert-btn">Einfügen (<span id="rgb-code-preview">^009</span>)</button>
-        </div>
-      </div>
-
+      <button type="button" class="pill" id="rgb-toggle">Kurzcode <code>^RGB</code> statt <code>&lt;defc&gt;</code></button>
     </div>
   </section>
 
