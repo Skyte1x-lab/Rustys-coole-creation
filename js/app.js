@@ -117,6 +117,9 @@ PRESET_COLORS.forEach((preset) => {
   btn.dataset.rgb = preset.rgb.join(",");
   btn.style.backgroundColor = rgbToCss(preset.rgb);
   btn.title = preset.name;
+  // Verhindert, dass der Klick auf den Button den Fokus (und damit die
+  // Textmarkierung) aus dem Editor stiehlt, bevor applyColor sie auswerten kann.
+  btn.addEventListener("mousedown", (e) => e.preventDefault());
   btn.addEventListener("click", () => applyColor(preset.rgb));
   swatchRow.insertBefore(btn, customSwatch);
 });
