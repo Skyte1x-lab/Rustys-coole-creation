@@ -9,10 +9,8 @@ Ein Chat-Parser-Generator im Star-Wars-Stil. Statt die Formatierungs-Syntax dein
   - `<defc=color name/rgb/hex>` — setzt die Standardfarbe für den folgenden Text
   - `<color=r,g,b>text</color>` — färbt nur einen Textabschnitt
   - `^RGB` (drei Ziffern 0–9, z. B. `^009`) — Farb-Kurzcode
-  - `:emoticon_name:` — Star-Wars-themed Emoticons
-  - `<avatar>` — fügt dein gewähltes Avatar-Tag ein
-- **Live-Vorschau**: zeigt den generierten Code gerendert (Farben, Emoticons, Avatar) an, genau wie er im Spiel-Chat erscheinen würde.
-- **Eigene Profile**: speichere deine Lieblingsfarbe, Lieblings-Emoticons und deinen Avatar als benanntes Profil (lokal im Browser via `localStorage`) und lade es jederzeit wieder.
+- **Live-Vorschau**: zeigt den generierten Code farblich gerendert an, genau wie er im Spiel-Chat erscheinen würde.
+- **Eigene Profile**: speichere deine Standardfarbe als benanntes Profil (lokal im Browser via `localStorage`) und lade es jederzeit wieder.
 - **Ein Klick zum Kopieren**: der fertige Code landet per Knopfdruck in der Zwischenablage.
 
 ## Nutzung

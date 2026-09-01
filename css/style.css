@@ -301,91 +301,6 @@ input[type="color"] {
   display: inline-block;
 }
 
-/* Emoticons */
-
-.emoticon-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 0.5rem;
-}
-
-.emoticon-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--panel-border-dim);
-  border-radius: 8px;
-  padding: 0.5rem 0.3rem;
-  cursor: pointer;
-  color: var(--text-dim);
-  transition: border-color 0.15s ease, background 0.15s ease;
-}
-
-.emoticon-btn:hover {
-  border-color: var(--accent-cyan);
-  background: rgba(47, 216, 255, 0.08);
-}
-
-.emoticon-btn.is-favorite {
-  border-color: var(--accent-gold);
-  box-shadow: 0 0 8px rgba(255, 215, 0, 0.25);
-}
-
-.emo-glyph {
-  font-size: 1.4rem;
-}
-
-.emo-name {
-  font-size: 0.62rem;
-  font-family: monospace;
-  word-break: break-all;
-  text-align: center;
-}
-
-/* Avatars */
-
-.avatar-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 0.6rem;
-}
-
-.avatar-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 2px solid var(--panel-border-dim);
-  border-radius: 10px;
-  padding: 0.6rem 0.3rem;
-  cursor: pointer;
-  color: var(--text-dim);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.avatar-btn:hover {
-  border-color: var(--avatar-color, var(--accent-cyan));
-}
-
-.avatar-btn.is-selected {
-  border-color: var(--avatar-color, var(--accent-gold));
-  box-shadow: 0 0 12px var(--avatar-color, var(--accent-gold));
-  color: var(--text-main);
-}
-
-.avatar-glyph {
-  font-size: 1.8rem;
-}
-
-.avatar-label {
-  font-size: 0.68rem;
-  font-family: var(--font-title);
-  letter-spacing: 0.03em;
-}
-
 /* Editor + preview */
 
 textarea {
@@ -420,14 +335,6 @@ textarea {
   line-height: 1.5;
   word-break: break-word;
   color: var(--text-main);
-}
-
-.chat-line .emoticon {
-  font-size: 1.1em;
-}
-
-.chat-line .avatar-inline {
-  font-size: 1.1em;
 }
 
 select {
