@@ -37,6 +37,17 @@ html, body {
   padding: 3rem 1rem 1.5rem;
 }
 
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .site-title {
   font-family: var(--font-title);
   font-weight: 900;
@@ -46,6 +57,7 @@ html, body {
   text-shadow: 0 0 12px rgba(255, 215, 0, 0.55), 0 0 40px rgba(255, 215, 0, 0.25);
   margin: 0;
   text-transform: uppercase;
+  animation: fadeInUp 0.4s ease both;
 }
 
 .site-title span {
@@ -58,6 +70,8 @@ html, body {
   font-size: 0.95rem;
   letter-spacing: 0.03em;
   margin-top: 0.5rem;
+  animation: fadeInUp 0.5s ease both;
+  animation-delay: 0.08s;
 }
 
 .container {
@@ -75,7 +89,19 @@ html, body {
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 24px rgba(47, 216, 255, 0.08);
   overflow: hidden;
   backdrop-filter: blur(3px);
+  animation: fadeInUp 0.35s ease both;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
+
+.panel:hover {
+  border-color: var(--panel-border);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 32px rgba(47, 216, 255, 0.16);
+}
+
+.container .panel:nth-child(1) { animation-delay: 0.03s; }
+.container .panel:nth-child(2) { animation-delay: 0.07s; }
+.container .panel:nth-child(3) { animation-delay: 0.11s; }
+.container .panel:nth-child(4) { animation-delay: 0.15s; }
 
 .panel-header {
   position: relative;
@@ -93,6 +119,12 @@ html, body {
   color: var(--accent-cyan);
 }
 
+@keyframes shimmer {
+  to {
+    background-position: 72px 0;
+  }
+}
+
 .panel-lights {
   position: absolute;
   top: 0;
@@ -104,7 +136,9 @@ html, body {
     var(--accent-cyan) 0 14px,
     transparent 14px 22px
   );
+  background-size: 72px 4px;
   opacity: 0.6;
+  animation: shimmer 4.5s linear infinite;
 }
 
 .panel-body {
@@ -119,41 +153,43 @@ html, body {
 
 /* Settings toggles */
 
-.toggle-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 0.75rem;
-}
-
-.toggle-item {
+.pill-group {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.6rem;
-  align-items: flex-start;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--panel-border-dim);
-  border-radius: 8px;
-  padding: 0.6rem 0.7rem;
-  cursor: pointer;
-  font-size: 0.82rem;
-  color: var(--text-dim);
-  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
-.toggle-item:hover {
-  border-color: var(--panel-border);
-  background: rgba(47, 216, 255, 0.06);
-}
-
-.toggle-item input {
-  margin-top: 3px;
-  accent-color: var(--accent-cyan);
-}
-
-.toggle-item strong {
-  color: var(--text-main);
+.pill {
   font-family: var(--font-title);
-  font-size: 0.78rem;
-  letter-spacing: 0.02em;
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-dim);
+  border: 1px solid var(--panel-border-dim);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+}
+
+.pill code {
+  font-family: monospace;
+  font-size: 0.68rem;
+  opacity: 0.75;
+  margin-left: 0.3rem;
+  text-transform: none;
+}
+
+.pill:hover {
+  border-color: var(--accent-cyan);
+}
+
+.pill.active {
+  color: var(--accent-cyan);
+  background: rgba(47, 216, 255, 0.14);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(47, 216, 255, 0.3);
 }
 
 /* Generator sections */
@@ -303,6 +339,29 @@ input[type="color"] {
 
 /* Editor + preview */
 
+.editor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  align-items: start;
+}
+
+@media (max-width: 700px) {
+  .editor-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.col-label {
+  display: block;
+  font-family: var(--font-title);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+  margin-bottom: 0.5rem;
+}
+
 textarea {
   width: 100%;
   resize: vertical;
@@ -326,7 +385,7 @@ textarea {
   border: 1px solid var(--panel-border-dim);
   border-radius: 8px;
   padding: 0.9rem 1rem;
-  min-height: 3rem;
+  min-height: 8.5rem;
 }
 
 .chat-line {
