@@ -9,9 +9,6 @@ const SETTINGS_KEY = "rcc_settings";
 const chatInput = document.getElementById("chat-input");
 const chatPreview = document.getElementById("chat-preview");
 
-let selectedAvatarId = null;
-let favoriteEmoticons = new Set();
-
 // ---------- Hilfsfunktionen: Text einfügen ----------
 
 function insertAtCursor(text) {
@@ -38,10 +35,7 @@ function wrapSelection(before, after, placeholder) {
 }
 
 function updatePreview() {
-  const avatar = AVATARS.find((a) => a.id === selectedAvatarId);
-  chatPreview.innerHTML = renderPreviewHTML(chatInput.value, {
-    avatarEmoji: avatar ? avatar.emoji : undefined,
-  });
+  chatPreview.innerHTML = renderPreviewHTML(chatInput.value);
 }
 
 chatInput.addEventListener("input", updatePreview);
@@ -152,66 +146,6 @@ document.getElementById("rgb-insert-btn").addEventListener("click", () => {
   insertAtCursor(`^${currentRgbDigits()}`);
 });
 
-// ---------- Emoticons ----------
-
-const emoticonGrid = document.getElementById("emoticon-grid");
-
-function renderEmoticonGrid() {
-  emoticonGrid.innerHTML = "";
-  EMOTICONS.forEach((emo) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "emoticon-btn" + (favoriteEmoticons.has(emo.name) ? " is-favorite" : "");
-    btn.title = `:${emo.name}:`;
-    btn.innerHTML = `<span class="emo-glyph">${emo.emoji}</span><span class="emo-name">:${emo.name}:</span>`;
-    btn.addEventListener("click", () => insertAtCursor(`:${emo.name}:`));
-    btn.addEventListener("dblclick", (e) => {
-      e.preventDefault();
-      if (favoriteEmoticons.has(emo.name)) favoriteEmoticons.delete(emo.name);
-      else favoriteEmoticons.add(emo.name);
-      renderEmoticonGrid();
-    });
-    emoticonGrid.appendChild(btn);
-  });
-}
-renderEmoticonGrid();
-
-// ---------- Avatar ----------
-
-const avatarGrid = document.getElementById("avatar-grid");
-
-function renderAvatarGrid() {
-  avatarGrid.innerHTML = "";
-  AVATARS.forEach((av) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "avatar-btn" + (selectedAvatarId === av.id ? " is-selected" : "");
-    btn.style.setProperty("--avatar-color", av.color);
-    btn.innerHTML = `<span class="avatar-glyph">${av.emoji}</span><span class="avatar-label">${av.label}</span>`;
-    btn.addEventListener("click", () => {
-      selectedAvatarId = av.id;
-      renderAvatarGrid();
-      updatePreview();
-    });
-    avatarGrid.appendChild(btn);
-  });
-}
-renderAvatarGrid();
-
-// Insert the <avatar> tag via a dedicated button appended below the avatar grid
-(function addAvatarInsertButton() {
-  const section = document.querySelector('.gen-section[data-rule="avatar"]');
-  const row = document.createElement("div");
-  row.className = "row";
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "btn";
-  btn.textContent = "Avatar-Tag einfügen";
-  btn.addEventListener("click", () => insertAtCursor("<avatar>"));
-  row.appendChild(btn);
-  section.appendChild(row);
-})();
-
 // ---------- Editor Buttons ----------
 
 document.getElementById("clear-btn").addEventListener("click", () => {
@@ -268,8 +202,6 @@ document.getElementById("preset-save-btn").addEventListener("click", () => {
   const presets = loadPresets();
   presets[name] = {
     defcColor: defcValue.value.trim() || defcPicker.value,
-    favoriteEmoticons: Array.from(favoriteEmoticons),
-    avatarId: selectedAvatarId,
   };
   savePresets(presets);
   refreshPresetSelect();
@@ -290,10 +222,6 @@ document.getElementById("preset-load-btn").addEventListener("click", () => {
       : null;
     if (hex) defcPicker.value = hex;
   }
-  favoriteEmoticons = new Set(preset.favoriteEmoticons || []);
-  selectedAvatarId = preset.avatarId || null;
-  renderEmoticonGrid();
-  renderAvatarGrid();
   updatePreview();
 });
 
