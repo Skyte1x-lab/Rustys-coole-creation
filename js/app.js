@@ -69,14 +69,23 @@ function applyColor(rgb) {
   markActiveSwatch(rgb);
 
   const sel = window.getSelection();
-  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
-    showSelectHint();
-    return;
+  let range = null;
+
+  if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+    const candidate = sel.getRangeAt(0);
+    if (chatEditor.contains(candidate.commonAncestorContainer)) {
+      range = candidate;
+    }
   }
-  const range = sel.getRangeAt(0);
-  if (!chatEditor.contains(range.commonAncestorContainer)) {
-    showSelectHint();
-    return;
+
+  if (!range) {
+    // Nichts markiert: ganze Nachricht einfärben statt eine Markierung zu verlangen.
+    if (!chatEditor.textContent.trim()) {
+      showSelectHint();
+      return;
+    }
+    range = document.createRange();
+    range.selectNodeContents(chatEditor);
   }
 
   const span = document.createElement("span");
