@@ -9,12 +9,19 @@ const chatEditor = document.getElementById("chat-editor");
 const chatCode = document.getElementById("chat-code");
 
 // Enter erzeugt <br> statt verschachtelter <div>-Zeilen, hält die Editor-DOM flach.
-// In try/catch, da execCommand in manchen Browsern/Zuständen wirft und sonst
+// styleWithCSS sorgt dafür, dass foreColor <span style="color:..."> statt
+// veralteter <font color="..."> Tags erzeugt.
+// Beide in try/catch, da execCommand in manchen Browsern/Zuständen wirft und sonst
 // die komplette restliche Initialisierung (Swatches, Buttons, Profile) blockieren würde.
 try {
   document.execCommand("defaultParagraphSeparator", false, "br");
 } catch {
   // ignorieren — Zeilenumbrüche funktionieren dann per Standardverhalten des Browsers
+}
+try {
+  document.execCommand("styleWithCSS", false, true);
+} catch {
+  // ignorieren — Chrome/Firefox/Safari verwenden ohnehin standardmäßig CSS-Styles
 }
 
 // ---------- Editor-Inhalt in Spiel-Code umwandeln ----------
@@ -28,7 +35,8 @@ function serializeEditor(node) {
       out += "\n";
     } else if (child.nodeName === "SPAN" && child.style.color) {
       const rgb = child.style.color.match(/\d+/g).map(Number);
-      out += `<color=${rgb.join(",")}>${serializeEditor(child)}</color>`;
+      const inner = serializeEditor(child);
+      out += inner ? `<color=${rgb.join(",")}>${inner}</color>` : "";
     } else {
       out += serializeEditor(child);
     }
@@ -50,13 +58,6 @@ function rgbToHex(rgb) {
 
 let selectedColor = [79, 214, 255];
 
-function showSelectHint() {
-  const hint = document.getElementById("select-hint");
-  hint.hidden = false;
-  clearTimeout(hint._timer);
-  hint._timer = setTimeout(() => (hint.hidden = true), 1800);
-}
-
 function markActiveSwatch(rgb) {
   const spec = rgb.join(",");
   document.querySelectorAll("#swatch-row .swatch:not(.is-custom)").forEach((btn) => {
@@ -64,55 +65,29 @@ function markActiveSwatch(rgb) {
   });
 }
 
+// Setzt die Vordergrundfarbe für die aktuelle Auswahl, oder — bei einem
+// simplen Cursor ohne Auswahl — für Text, der ab jetzt getippt wird. Der
+// Browser übernimmt dabei sauber das Aufteilen/Ersetzen überlappender
+// bereits gefärbter Abschnitte (kein manuelles Verschachteln nötig).
 function applyColor(rgb) {
   selectedColor = rgb;
   markActiveSwatch(rgb);
+  chatEditor.focus();
 
   const sel = window.getSelection();
-  let range = null;
+  const hasUsableSelection =
+    sel && sel.rangeCount > 0 && chatEditor.contains(sel.getRangeAt(0).commonAncestorContainer);
 
-  if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
-    const candidate = sel.getRangeAt(0);
-    if (chatEditor.contains(candidate.commonAncestorContainer)) {
-      range = candidate;
-    }
-  }
-
-  if (!range) {
-    // Nichts markiert: ganze Nachricht einfärben statt eine Markierung zu verlangen.
-    if (!chatEditor.textContent.trim()) {
-      showSelectHint();
-      return;
-    }
-    range = document.createRange();
+  if (!hasUsableSelection) {
+    // Kein Cursor im Editor (z.B. noch nie hineingeklickt) -> ans Ende setzen.
+    const range = document.createRange();
     range.selectNodeContents(chatEditor);
+    range.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(range);
   }
 
-  const span = document.createElement("span");
-  span.style.color = rgbToCss(rgb);
-  try {
-    range.surroundContents(span);
-  } catch {
-    const frag = range.extractContents();
-    span.appendChild(frag);
-    range.insertNode(span);
-  }
-
-  // Bereits vorhandene Farb-Spans, die jetzt innerhalb des neuen Spans
-  // gelandet sind (z.B. beim erneuten Einfärben), auflösen statt zu
-  // verschachteln — es soll immer nur eine Farbe pro Abschnitt gelten.
-  span.querySelectorAll("span").forEach((inner) => {
-    const parent = inner.parentNode;
-    while (inner.firstChild) parent.insertBefore(inner.firstChild, inner);
-    parent.removeChild(inner);
-  });
-
-  // Alte Farb-Spans, die durch das Umfärben leer zurückgeblieben sind, entfernen.
-  chatEditor.querySelectorAll("span").forEach((s) => {
-    if (!s.textContent) s.remove();
-  });
-
-  sel.removeAllRanges();
+  document.execCommand("foreColor", false, rgbToCss(rgb));
   updateCode();
 }
 
