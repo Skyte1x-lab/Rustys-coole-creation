@@ -1,4 +1,6 @@
-# Rustys Coole Creation
+# HoloComm von Rusty
+
+*(Repository: Rustys-coole-creation)*
 
 Ein Chat-Parser-Generator im Star-Wars-Stil. Du schreibst deine Nachricht ganz normal, markierst ein Stück Text und klickst eine Farbe — fertig. Den Spiel-Code (`<color=r,g,b>...</color>`) schreibt die App für dich; du siehst nie rohe Syntax in deinem Editor, nur deinen farbig eingefärbten Text.
 
