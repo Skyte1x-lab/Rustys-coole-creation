@@ -1,17 +1,13 @@
 # Rustys Coole Creation
 
-Ein Chat-Parser-Generator im Star-Wars-Stil. Statt die Formatierungs-Syntax deines Spiel-Chats auswendig zu tippen, klickst du dir den fertigen Code zusammen und siehst sofort eine Live-Vorschau, wie er im Chat aussehen würde.
+Ein Chat-Parser-Generator im Star-Wars-Stil. Du schreibst deine Nachricht ganz normal, markierst ein Stück Text und klickst eine Farbe — fertig. Den Spiel-Code (`<color=r,g,b>...</color>`) schreibt die App für dich; du siehst nie rohe Syntax in deinem Editor, nur deinen farbig eingefärbten Text.
 
 ## Funktionen
 
-- **Klick-to-Color**: Text im Nachrichtenfeld markieren und auf eine Farbe klicken — der markierte Text wird sofort mit `<color=r,g,b>...</color>` umschlossen. Ohne Markierung setzt ein Klick die Farbe ab der Cursorposition (`<defc=r,g,b>`, oder als Kurzcode `^RGB` wenn der Kurzcode-Schalter aktiv ist).
+- **WYSIWYG-Editor**: Text tippen, markieren, Farbe klicken — der markierte Text wird direkt im Editor bunt dargestellt, genau wie er später im Spiel-Chat aussehen soll.
+- **Automatischer Code**: Unter dem Editor erscheint live der fertige Chat-Code (`<color=r,g,b>text</color>`), bereit zum Kopieren — du musst nie selbst Syntax schreiben.
 - **9 Star-Wars-Farb-Swatches** plus ein Custom-Swatch (natives Farbrad) für jede beliebige Farbe.
-- **Unterstützte Syntax**:
-  - `<defc=r,g,b>` — setzt die Standardfarbe für den folgenden Text
-  - `<color=r,g,b>text</color>` — färbt nur einen Textabschnitt
-  - `^RGB` (drei Ziffern 0–9, z. B. `^009`) — Farb-Kurzcode, per Schalter aktivierbar
-- **Live-Vorschau**: zeigt den generierten Code farblich gerendert an, genau wie er im Spiel-Chat erscheinen würde.
-- **Eigene Profile**: speichere deine Lieblingsfarbe als benanntes Profil (lokal im Browser via `localStorage`) und lade es jederzeit wieder.
+- **Eigene Profile**: speichere deine Lieblingsfarbe als benanntes Profil (lokal im Browser via `localStorage`) und lade sie jederzeit wieder.
 - **Ein Klick zum Kopieren**: der fertige Code landet per Knopfdruck in der Zwischenablage.
 
 ## Nutzung
@@ -29,16 +25,14 @@ cd Rustys-coole-creation
 ```
 index.html        Haupt-App-Seite
 css/style.css      Star-Wars-Theme (Sternenhimmel, Farbschema, Panels)
-js/parsers.js       Parser-Regeln, Farbauflösung, Vorschau-Rendering
-js/app.js            UI-Logik: Einstellungen, Generator, Editor, Profile
+js/parsers.js       Farbnamen, Star-Wars-Farbpalette, Farbauflösung
+js/app.js            UI-Logik: Swatches, WYSIWYG-Editor, Code-Ausgabe, Profile
 ```
 
 ## Farb-Formate
 
-Die Live-Vorschau erkennt Farben in drei Schreibweisen (auch wenn du Code von Hand einfügst oder einfügst):
+Farben lassen sich intern auf drei Arten angeben (z. B. beim Custom-Swatch oder in gespeicherten Profilen):
 
 - Name (z. B. `red`, `gold`, `cyan` — siehe `COLOR_NAMES` in `js/parsers.js`)
-- RGB-Tripel (z. B. `255,140,0`) — dieses Format erzeugen die Swatches
+- RGB-Tripel (z. B. `255,140,0`) — dieses Format erzeugen die Swatches im Chat-Code
 - Hex (z. B. `#ff8c00` oder `ff8c00`)
-
-Der `^RGB`-Kurzcode nutzt drei Ziffern (0–9) für Rot, Grün und Blau, z. B. `^009` für kräftiges Blau.
