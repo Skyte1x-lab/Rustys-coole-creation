@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rustys Coole Creation — Chat Parser Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<header class="site-header">
+  <h1 class="site-title">Rustys <span>Coole</span> Creation</h1>
+  <p class="site-subtitle">Chat-Parser-Generator &mdash; verlier dich nicht in der Syntax, verlier dich in der Galaxie.</p>
+</header>
+
+<main class="container">
+
+  <section class="panel" id="settings-panel">
+    <div class="panel-header"><span class="panel-lights"></span><h2>Parser-Einstellungen</h2></div>
+    <div class="panel-body">
+      <p class="hint">Wähle aus, welche Parser-Regeln du im Generator verwenden möchtest.</p>
+      <div class="toggle-grid">
+        <label class="toggle-item">
+          <input type="checkbox" id="toggle-defc" data-rule="defc" checked>
+          <span><strong>&lt;defc=color&gt;</strong><br>Standardfarbe für folgenden Text</span>
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="toggle-color" data-rule="color" checked>
+          <span><strong>&lt;color=r,g,b&gt;text&lt;/color&gt;</strong><br>Nur einen Textabschnitt einfärben</span>
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="toggle-rgb" data-rule="rgb" checked>
+          <span><strong>^RGB (0-9)</strong><br>Kurzcode für Farben, z.B. ^009</span>
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="toggle-emoticon" data-rule="emoticon" checked>
+          <span><strong>:emoticon_name:</strong><br>Star-Wars-Emoticons einfügen</span>
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="toggle-avatar" data-rule="avatar" checked>
+          <span><strong>&lt;avatar&gt;</strong><br>Avatar-Tag einfügen</span>
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="generator-panel">
+    <div class="panel-header"><span class="panel-lights"></span><h2>Generator</h2></div>
+    <div class="panel-body">
+
+      <div class="gen-section" data-rule="defc">
+        <h3>Standardfarbe &mdash; <code>&lt;defc=...&gt;</code></h3>
+        <div class="row">
+          <input type="color" id="defc-color-picker" value="#4fd6ff">
+          <input type="text" id="defc-color-value" placeholder="z.B. red, 79,214,255 oder #4fd6ff">
+          <button class="btn" id="defc-insert-btn">Einfügen</button>
+        </div>
+      </div>
+
+      <div class="gen-section" data-rule="color">
+        <h3>Textabschnitt färben &mdash; <code>&lt;color=...&gt;text&lt;/color&gt;</code></h3>
+        <div class="row">
+          <input type="color" id="range-color-picker" value="#ffd700">
+          <input type="text" id="range-color-value" placeholder="z.B. gold, 255,215,0 oder #ffd700">
+        </div>
+        <div class="row">
+          <button class="btn" id="range-wrap-btn">Auswahl im Textfeld einfärben</button>
+          <button class="btn btn-secondary" id="range-insert-btn">Platzhalter einfügen</button>
+        </div>
+      </div>
+
+      <div class="gen-section" data-rule="rgb">
+        <h3>RGB-Kurzcode &mdash; <code>^RGB</code></h3>
+        <div class="rgb-sliders">
+          <label>R <input type="range" min="0" max="9" value="0" id="rgb-r"><span id="rgb-r-val">0</span></label>
+          <label>G <input type="range" min="0" max="9" value="0" id="rgb-g"><span id="rgb-g-val">0</span></label>
+          <label>B <input type="range" min="0" max="9" value="9" id="rgb-b"><span id="rgb-b-val">9</span></label>
+          <span class="rgb-swatch" id="rgb-swatch"></span>
+        </div>
+        <div class="row">
+          <button class="btn" id="rgb-insert-btn">Einfügen (<span id="rgb-code-preview">^009</span>)</button>
+        </div>
+      </div>
+
+      <div class="gen-section" data-rule="emoticon">
+        <h3>Emoticons &mdash; <code>:name:</code></h3>
+        <div class="emoticon-grid" id="emoticon-grid"></div>
+      </div>
+
+      <div class="gen-section" data-rule="avatar">
+        <h3>Avatar &mdash; <code>&lt;avatar&gt;</code></h3>
+        <p class="hint">Wähle deinen Avatar für die Vorschau und füge das Tag ein.</p>
+        <div class="avatar-grid" id="avatar-grid"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="panel" id="editor-panel">
+    <div class="panel-header"><span class="panel-lights"></span><h2>Nachricht</h2></div>
+    <div class="panel-body">
+      <textarea id="chat-input" rows="5" placeholder="Schreibe hier deine Nachricht und füge oben Codes ein..."></textarea>
+      <div class="row">
+        <button class="btn btn-primary" id="copy-btn">In Zwischenablage kopieren</button>
+        <button class="btn btn-secondary" id="clear-btn">Leeren</button>
+        <span id="copy-confirm" class="confirm-msg" hidden>Kopiert!</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="preview-panel">
+    <div class="panel-header"><span class="panel-lights"></span><h2>Live-Vorschau</h2></div>
+    <div class="panel-body">
+      <div class="chat-window">
+        <div class="chat-line" id="chat-preview">&nbsp;</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="presets-panel">
+    <div class="panel-header"><span class="panel-lights"></span><h2>Meine Profile</h2></div>
+    <div class="panel-body">
+      <div class="row">
+        <input type="text" id="preset-name" placeholder="Profilname, z.B. Jedi-Standard">
+        <button class="btn" id="preset-save-btn">Speichern</button>
+      </div>
+      <div class="row">
+        <select id="preset-select"><option value="">— gespeicherte Profile —</option></select>
+        <button class="btn btn-secondary" id="preset-load-btn">Laden</button>
+        <button class="btn btn-danger" id="preset-delete-btn">Löschen</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>Rustys Coole Creation &mdash; ein selbstgebauter Chat-Parser-Generator im Star-Wars-Stil. Möge der Chat mit dir sein.</p>
+</footer>
+
+<script src="js/parsers.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

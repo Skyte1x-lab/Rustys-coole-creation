@@ -1,0 +1,149 @@
+/*
+ * Rustys Coole Creation — Parser-Regeln
+ * Definiert die unterstützte Chat-Parser-Syntax und die Logik,
+ * um daraus eine gerenderte Live-Vorschau zu erzeugen.
+ */
+
+const COLOR_NAMES = {
+  red: [255, 0, 0],
+  green: [0, 255, 0],
+  blue: [0, 0, 255],
+  yellow: [255, 255, 0],
+  white: [255, 255, 255],
+  black: [40, 40, 40],
+  orange: [255, 140, 0],
+  purple: [160, 32, 240],
+  cyan: [0, 255, 255],
+  pink: [255, 105, 180],
+  gray: [160, 160, 160],
+  grey: [160, 160, 160],
+  gold: [255, 215, 0],
+  silver: [192, 192, 192],
+  lime: [50, 205, 50],
+  teal: [0, 128, 128],
+};
+
+const EMOTICONS = [
+  { name: "galaxy_smile", emoji: "😄" },
+  { name: "holo_laugh", emoji: "😂" },
+  { name: "scout_wink", emoji: "😉" },
+  { name: "ace_pilot", emoji: "😎" },
+  { name: "force_love", emoji: "😍" },
+  { name: "sith_rage", emoji: "😠" },
+  { name: "rebel_tears", emoji: "😢" },
+  { name: "hyperspace_shock", emoji: "😲" },
+  { name: "droid_beep", emoji: "🤖" },
+  { name: "alien_greetings", emoji: "👽" },
+  { name: "deathstar_boom", emoji: "💥" },
+  { name: "star_shine", emoji: "⭐" },
+  { name: "falcon_jump", emoji: "🚀" },
+  { name: "saber_clash", emoji: "⚔️" },
+  { name: "force_ghost", emoji: "👻" },
+  { name: "bounty_target", emoji: "💀" },
+];
+
+const AVATARS = [
+  { id: "jedi", label: "Jedi", emoji: "🧙", color: "#4fd6ff" },
+  { id: "sith", label: "Sith", emoji: "👹", color: "#ff3b3b" },
+  { id: "rebel", label: "Rebell", emoji: "🎖️", color: "#ff8c00" },
+  { id: "empire", label: "Imperium", emoji: "⚙️", color: "#9aa5b1" },
+  { id: "droid", label: "Droide", emoji: "🤖", color: "#3ddc84" },
+  { id: "hunter", label: "Kopfgeldjäger", emoji: "🎯", color: "#ffd700" },
+  { id: "smuggler", label: "Schmuggler", emoji: "🛸", color: "#c084fc" },
+  { id: "wookiee", label: "Wookiee", emoji: "🦁", color: "#a97142" },
+];
+
+function resolveColor(spec) {
+  if (!spec) return null;
+  spec = String(spec).trim();
+
+  const hexMatch = /^#?([0-9a-fA-F]{6})$/.exec(spec);
+  if (hexMatch) {
+    const hex = hexMatch[1];
+    return [
+      parseInt(hex.slice(0, 2), 16),
+      parseInt(hex.slice(2, 4), 16),
+      parseInt(hex.slice(4, 6), 16),
+    ];
+  }
+
+  const rgbMatch = /^(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})$/.exec(spec);
+  if (rgbMatch) {
+    return [1, 2, 3].map((i) => Math.min(255, parseInt(rgbMatch[i], 10)));
+  }
+
+  const named = COLOR_NAMES[spec.toLowerCase()];
+  if (named) return named;
+
+  return [255, 255, 255];
+}
+
+function rgbToCss(rgb) {
+  return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+}
+
+function rgbDigitsToColor(digits) {
+  // digits: string of exactly 3 chars, each 0-9, one per channel (R,G,B)
+  return digits.split("").map((d) => Math.round((parseInt(d, 10) * 255) / 9));
+}
+
+function escapeHtml(str) {
+  return str.replace(/[&<>"']/g, (ch) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  }[ch]));
+}
+
+const TOKEN_RE = /<defc=([^>]+)>|<color=([^>]+)>([\s\S]*?)<\/color>|\^(\d{3})|:([a-zA-Z0-9_]+):|<avatar>/g;
+
+/**
+ * Rendert einen rohen Chat-Parser-Code als HTML für die Live-Vorschau.
+ * @param {string} text - der rohe Code (z.B. aus dem Textfeld)
+ * @param {{avatarEmoji?: string}} opts
+ * @returns {string} HTML-String
+ */
+function renderPreviewHTML(text, opts = {}) {
+  const avatarEmoji = opts.avatarEmoji || "🧑‍🚀";
+  let result = "";
+  let currentColor = null;
+  let lastIndex = 0;
+  let match;
+
+  const re = new RegExp(TOKEN_RE);
+
+  function flushPlain(chunk) {
+    if (!chunk) return;
+    const escaped = escapeHtml(chunk);
+    result += currentColor
+      ? `<span style="color:${rgbToCss(currentColor)}">${escaped}</span>`
+      : escaped;
+  }
+
+  while ((match = re.exec(text)) !== null) {
+    flushPlain(text.slice(lastIndex, match.index));
+    lastIndex = re.lastIndex;
+
+    if (match[1] !== undefined) {
+      currentColor = resolveColor(match[1]);
+    } else if (match[2] !== undefined) {
+      const rgb = resolveColor(match[2]);
+      const inner = renderPreviewHTML(match[3], opts);
+      result += `<span style="color:${rgbToCss(rgb)}">${inner}</span>`;
+    } else if (match[4] !== undefined) {
+      currentColor = rgbDigitsToColor(match[4]);
+    } else if (match[5] !== undefined) {
+      const found = EMOTICONS.find((e) => e.name === match[5]);
+      result += found
+        ? `<span class="emoticon" title=":${match[5]}:">${found.emoji}</span>`
+        : escapeHtml(match[0]);
+    } else {
+      result += `<span class="avatar-inline" title="avatar">${avatarEmoji}</span> `;
+    }
+  }
+  flushPlain(text.slice(lastIndex));
+
+  return result || "&nbsp;";
+}
